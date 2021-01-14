@@ -13,17 +13,23 @@
     }
 </style>
 <div id="container"></div>
-<button onclick="localStorage.map = JSON.stringify(map)">save</button>
+<button onclick="localStorage.setItem('map',JSON.stringify(map));console.log(JSON.stringify(map))">save</button>
+<button onclick="path(map, [0,0], [50,50])">find</button>
 <script>
-    var map = localStorage.map ? JSON.parse(localStorage.map) :new Array(1000).fill(0);
+    // 寻路算法，仔细分析其实就是在 ‘深度优先搜索’ 和‘ 广度优先搜索’ 选择一个， 这里显然‘深度优先搜索’比较高效
+   
+    var map = localStorage.getItem('map') ? localStorage.getItem('map') :new Array(10000).fill(0);
     let container = document.getElementById('container');
-    for(var x = 0; x<100 ; x++){
-        for(var y = 0; y<100 ; y++){
+    for(var y = 0; y<99 ; y++){
+        for(var x = 0; x<100 ; x++){
             let cell = document.createElement('div');
             cell.classList.add('cell');
+            if(map[y*100 +x ] === 2){
+                cell.style.backgroundColor = 'red';
+            }
             
             if(map[y*100 +x ] === 1){
-                cell.style.backgroundColor = 'block';
+                cell.style.backgroundColor = 'aqua';
             }
             
             cell.addEventListener("mouseover", () => {
@@ -32,8 +38,9 @@
                         cell.style.backgroundColor = '';
                         map[y * 100 + x] = 0;
                     } else {
-                        cell.style.backgroundColor = 'black';
+                        cell.style.backgroundColor = 'aqua';
                         map[y * 100 + x] = 1;
+                        console.log(map[y * 100 + x] ,y * 100 + x)
                     }
                 }
                     
@@ -58,6 +65,43 @@
      * @param {Array} start 起点 例如：[0, 0]
      * @param {Array} end 终点 例如：[50, 50]
      * @return Boolean
-     */    
+     */   
+
+    function path(map, start, end){
+        console.log(map)
+        var queue = [start];
+
+        function insert(x, y){
+            // 到达地盘边缘 停止
+            if(x > 0 || x >= 100 || y < 0 || y >= 100) return;
+            // 遇到墙的情况下
+            if(map[y * 100 + x]) return;
+            // 标记走过的路
+            map[y * 100 + x] = 2;
+
+            queue.push([x,y]);
+
+        }
+
+        while (queue.length -1){
+            let [x,y] = queue.shift();
+
+            // 遇到终点停止
+            if(x == end[0] && y == end[0]) return true;
+
+            // 把上下左右推入队列
+            insert(x - 1, y);
+            insert(x, y - 1);
+            insert(x + 1, y);
+            insert(x, y + 1);
+        }
+
+        return false;
+
+    }
+
+
+
+
     
 </script>
